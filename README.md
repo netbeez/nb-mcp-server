@@ -44,7 +44,7 @@ This skips cloning; it uses the current directory, runs `npm install` and `npm r
 | Step | Detail |
 |------|--------|
 | Node.js | Checks for Node.js 18+; installs via Homebrew, apt, or nvm if missing |
-| Clone | Clones the repo to `~/.netbeez-mcp` (or pulls latest if already installed) |
+| Download | Downloads the latest source from GitHub (no git required) and extracts to `~/.netbeez-mcp` |
 | Build | Runs `npm install` and `npm run build` |
 | Configure | Prompts for credentials and writes `~/.netbeez-mcp/.env` |
 | MCP clients | Merges the server entry into Cursor / Claude Desktop / Windsurf / Codex / Kiro config |
@@ -54,17 +54,18 @@ This skips cloning; it uses the current directory, runs `npm install` and `npm r
 If you prefer to install manually, you'll need:
 
 - Node.js 18+
-- Git
 - A NetBeez BeezKeeper instance with API access
 - An API key (Dashboard → Settings → API Keys)
 
+The one-line installer only requires Node.js 18+ and curl (no git).
+
 ## Manual Installation
 
-### 1. Clone & build
+### 1. Download & build
 
 ```bash
-git clone https://github.com/netbeez/nb-mcp-server.git ~/.netbeez-mcp
-cd ~/.netbeez-mcp
+curl -fsSL https://github.com/netbeez/nb-mcp-server/archive/refs/heads/main.tar.gz -o nb-mcp-server.tar.gz
+tar -xzf nb-mcp-server.tar.gz && cd nb-mcp-server-main
 npm install
 npm run build
 ```

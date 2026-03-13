@@ -13,13 +13,13 @@ set -euo pipefail
 #
 # What it does:
 #   1. Checks / installs Node.js 18+
-#   2. Clones (or updates) the repo to ~/.netbeez-mcp — skipped if --dev
+#   2. Downloads (or updates) the repo to ~/.netbeez-mcp via GitHub archive — skipped if --dev
 #   3. Installs npm dependencies and builds the server
 #   4. Prompts for NetBeez API credentials
 #   5. Configures Cursor/Claude/Windsurf/Codex/Kiro MCP client(s)
 # ─────────────────────────────────────────────────────────────────────────────
 
-REPO_URL="https://github.com/netbeez/nb-mcp-server.git"
+ARCHIVE_URL="https://github.com/netbeez/nb-mcp-server/archive/refs/heads/main.tar.gz"
 MIN_NODE_MAJOR=18
 
 # Parse --dev before setting INSTALL_DIR
@@ -282,7 +282,7 @@ install_node_official() {
   nvm use "$MIN_NODE_MAJOR"
 }
 
-# ── Step 2: Clone or update repo ────────────────────────────────────────────
+# ── Step 2: Download or update (no git required) ─────────────────────────────
 
 setup_repo() {
   header "Setting up NetBeez MCP Server"
@@ -297,20 +297,48 @@ setup_repo() {
     return
   fi
 
-  if [[ -d "$INSTALL_DIR/.git" ]]; then
+  local tmp_dir env_backup=""
+  tmp_dir="$(mktemp -d)"
+  trap 'rm -rf "$tmp_dir"' EXIT
+
+  if [[ -d "$INSTALL_DIR" && -f "$INSTALL_DIR/package.json" ]]; then
     info "Existing installation found at ${INSTALL_DIR}"
-    info "Pulling latest changes…"
-    git -C "$INSTALL_DIR" pull --ff-only origin main 2>/dev/null || {
-      warn "Fast-forward pull failed; resetting to origin/main"
-      git -C "$INSTALL_DIR" fetch origin
-      git -C "$INSTALL_DIR" reset --hard origin/main
-    }
-    success "Updated to latest version"
+    info "Downloading latest version…"
+    if [[ -f "$INSTALL_DIR/.env" ]]; then
+      env_backup="$tmp_dir/.env.bak"
+      cp "$INSTALL_DIR/.env" "$env_backup"
+    fi
+    rm -rf "$INSTALL_DIR"
   else
-    info "Cloning repository to ${INSTALL_DIR}…"
-    git clone "$REPO_URL" "$INSTALL_DIR"
-    success "Cloned successfully"
+    info "Downloading repository to ${INSTALL_DIR}…"
   fi
+
+  mkdir -p "$INSTALL_DIR"
+
+  if ! curl -fsSL "$ARCHIVE_URL" -o "$tmp_dir/nb-mcp-server.tar.gz"; then
+    error "Download failed. Check your network and try again."
+    exit 1
+  fi
+
+  if ! tar -xzf "$tmp_dir/nb-mcp-server.tar.gz" -C "$tmp_dir"; then
+    error "Extract failed. Corrupted download?"
+    exit 1
+  fi
+
+  if ! cp -R "$tmp_dir/nb-mcp-server-main/." "$INSTALL_DIR/"; then
+    error "Copy failed. Check permissions for ${INSTALL_DIR}."
+    exit 1
+  fi
+
+  if [[ -n "$env_backup" && -f "$env_backup" ]]; then
+    cp "$env_backup" "$INSTALL_DIR/.env"
+    info "Restored existing configuration (.env)"
+  fi
+
+  trap - EXIT
+  rm -rf "$tmp_dir"
+
+  success "Downloaded successfully"
 }
 
 # ── Step 3: Install & build ─────────────────────────────────────────────────
