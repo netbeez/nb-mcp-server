@@ -1,5 +1,5 @@
 /**
- * Agent tools — list_agents, get_agent, search_agents, get_agent_logs, get_agent_performance_metrics
+ * Agent tools — list/get/search/logs/performance/access-point-connections
  */
 
 import { z } from "zod";
@@ -231,6 +231,58 @@ export function registerAgentTools(server: McpServer, client: JsonApiClient) {
         params.agent_id,
         options
       );
+
+      return {
+        content: [
+          {
+            type: "text" as const,
+            text: JSON.stringify(response, null, 2),
+          },
+        ],
+      };
+    }
+  );
+
+  // ─── get_agent_access_point_connections ─────────────────
+  server.tool(
+    "get_agent_access_point_connections",
+    `Get WiFi access point connection history for an agent (SSID/BSSID, signal and DHCP related state). Useful for wireless troubleshooting and roaming analysis.`,
+    {
+      agent_id: z.number().describe("The numeric ID of the agent"),
+      filter_ts_operator: z
+        .string()
+        .optional()
+        .describe("Timestamp filter operator: >, <, >=, <=, <=>, ="),
+      filter_ts_value1: z
+        .string()
+        .optional()
+        .describe("Timestamp filter value"),
+      filter_ts_value2: z
+        .string()
+        .optional()
+        .describe("Second timestamp value (for between operator)"),
+      order_by: z.string().optional().describe("Order by field"),
+      order_direction: z.enum(["asc", "desc"]).optional().describe("Sort direction"),
+      page: z.number().optional().describe("Page offset"),
+      page_size: z.number().optional().describe("Results per page"),
+    },
+    async (params) => {
+      const response = await client.getAgentAccessPointConnections(params.agent_id, {
+        timestampFilters: {
+          ts:
+            params.filter_ts_operator && params.filter_ts_value1
+              ? {
+                  operator: params.filter_ts_operator as any,
+                  value1: params.filter_ts_value1,
+                  value2: params.filter_ts_value2,
+                }
+              : undefined,
+        },
+        order: params.order_by
+          ? { attributes: params.order_by, direction: params.order_direction || "desc" }
+          : undefined,
+        pagination: { page: params.page, page_size: params.page_size },
+      });
 
       return {
         content: [

@@ -1,5 +1,5 @@
 /**
- * Target tools — list_targets, get_target
+ * Target tools — list/get plus create/update write operations
  */
 
 import { z } from "zod";
@@ -7,6 +7,19 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { JsonApiClient } from "../api/jsonapi-client.js";
 
 export function registerTargetTools(server: McpServer, client: JsonApiClient) {
+  const bodySchema = z.union([z.record(z.unknown()), z.string()]);
+
+  const parseBody = (body: Record<string, unknown> | string): unknown => {
+    if (typeof body !== "string") {
+      return body;
+    }
+    try {
+      return JSON.parse(body);
+    } catch (error) {
+      throw new Error(`Invalid JSON in body: ${(error as Error).message}`);
+    }
+  };
+
   // ─── list_targets ───────────────────────────────────────
   server.tool(
     "list_targets",
@@ -67,6 +80,87 @@ export function registerTargetTools(server: McpServer, client: JsonApiClient) {
         pagination: { page: params.page, page_size: params.page_size },
       });
 
+      return {
+        content: [
+          {
+            type: "text" as const,
+            text: JSON.stringify(response, null, 2),
+          },
+        ],
+      };
+    }
+  );
+
+  // ─── create_target ──────────────────────────────────────
+  server.tool(
+    "create_target",
+    `Create a custom monitoring target using a raw JSON:API payload. The caller must provide the full JSON:API document (attributes, test templates, relationships, and monitoring conditions as needed).`,
+    {
+      body: bodySchema.describe("Raw JSON:API payload object or JSON string."),
+    },
+    async (params) => {
+      const response = await client.createTarget(parseBody(params.body));
+      return {
+        content: [
+          {
+            type: "text" as const,
+            text: JSON.stringify(response, null, 2),
+          },
+        ],
+      };
+    }
+  );
+
+  // ─── create_target_saas ─────────────────────────────────
+  server.tool(
+    "create_target_saas",
+    `Create a target from a built-in SaaS application using a raw JSON:API payload.`,
+    {
+      body: bodySchema.describe("Raw JSON:API payload object or JSON string."),
+    },
+    async (params) => {
+      const response = await client.createTargetSaaS(parseBody(params.body));
+      return {
+        content: [
+          {
+            type: "text" as const,
+            text: JSON.stringify(response, null, 2),
+          },
+        ],
+      };
+    }
+  );
+
+  // ─── create_target_from_template ───────────────────────
+  server.tool(
+    "create_target_from_template",
+    `Create a target from simplified templates (Website, DNS, VPN, Gateway) using a raw JSON:API payload.`,
+    {
+      body: bodySchema.describe("Raw JSON:API payload object or JSON string."),
+    },
+    async (params) => {
+      const response = await client.createTargetFromTemplate(parseBody(params.body));
+      return {
+        content: [
+          {
+            type: "text" as const,
+            text: JSON.stringify(response, null, 2),
+          },
+        ],
+      };
+    }
+  );
+
+  // ─── update_target ──────────────────────────────────────
+  server.tool(
+    "update_target",
+    `Update an existing target by ID using a raw JSON:API payload.`,
+    {
+      target_id: z.number().describe("Target ID to update."),
+      body: bodySchema.describe("Raw JSON:API payload object or JSON string."),
+    },
+    async (params) => {
+      const response = await client.updateTarget(params.target_id, parseBody(params.body));
       return {
         content: [
           {

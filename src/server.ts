@@ -15,9 +15,10 @@ import { registerIncidentTools } from "./tools/incidents.js";
 import { registerAlertTools } from "./tools/alerts.js";
 import { registerWifiTools } from "./tools/wifi.js";
 import { registerScheduledTestTools } from "./tools/scheduled-tests.js";
+import { registerAgentGroupTools } from "./tools/agent-groups.js";
 import { registerStatisticsTools } from "./tools/statistics.js";
 import { registerPathAnalysisTools } from "./tools/path-analysis.js";
-import { registerActionTools } from "./tools/actions.js";
+import { registerAdHocTools } from "./tools/ad-hoc.js";
 
 // Resources
 import {
@@ -60,7 +61,7 @@ export function createServer(config: Config): McpServer {
   const legacyClient = new LegacyClient(config);
 
   // ──────────────────────────────────────────────
-  // Register Tools (19 total)
+  // Register Tools
   // ──────────────────────────────────────────────
 
   // Agent tools (5): list_agents, get_agent, search_agents, get_agent_logs, get_agent_performance_metrics
@@ -90,8 +91,11 @@ export function createServer(config: Config): McpServer {
   // Path analysis tools (1): get_path_analysis_results
   registerPathAnalysisTools(server, jsonApiClient);
 
-  // Action tools (2): run_adhoc_test, get_multiagent_test_run_status
-  registerActionTools(server, jsonApiClient);
+  // Agent group tools (4): list/get/create/update
+  registerAgentGroupTools(server, jsonApiClient);
+
+  // Ad-hoc tools (2): run_adhoc_test, get_multiagent_test_run_status
+  registerAdHocTools(server, jsonApiClient);
 
   // ──────────────────────────────────────────────
   // Register Resources (3 contextual documents)

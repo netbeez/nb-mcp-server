@@ -9,14 +9,14 @@ set -euo pipefail
 #
 # Options:
 #   --dev    Use the current repo as the install directory (no clone). Run from
-#            the repo root so Cursor/Claude/Codex/Windsurf use your local build.
+#            the repo root so Cursor/Claude/Codex/Windsurf/Kiro use your local build.
 #
 # What it does:
 #   1. Checks / installs Node.js 18+
 #   2. Clones (or updates) the repo to ~/.netbeez-mcp — skipped if --dev
 #   3. Installs npm dependencies and builds the server
 #   4. Prompts for NetBeez API credentials
-#   5. Configures Cursor and/or Claude Desktop MCP client(s)
+#   5. Configures Cursor/Claude/Windsurf/Codex/Kiro MCP client(s)
 # ─────────────────────────────────────────────────────────────────────────────
 
 REPO_URL="https://github.com/netbeez/nb-mcp-server.git"
@@ -565,6 +565,15 @@ configure_clients() {
   # ── Codex ──
   if prompt_yn "Configure Codex?" "n"; then
     write_codex_config
+    configured=1
+  fi
+
+  # ── Kiro ──
+  local kiro_config="$HOME/.kiro/settings/mcp.json"
+  if prompt_yn "Configure Kiro IDE?" "n"; then
+    write_mcp_config "$kiro_config"
+    success "Kiro configured → ${kiro_config}"
+    info "Restart Kiro or reload MCP servers to activate."
     configured=1
   fi
 

@@ -4,7 +4,7 @@ A Model Context Protocol (MCP) server that connects LLM clients (Cursor, Claude 
 
 ## Features
 
-- **18 tools** for querying agents, targets, tests, alerts, incidents, WiFi profiles, statistics, path analysis, and running ad-hoc speed/VoIP tests
+- **32 tools** for querying and managing agents, agent groups, targets, tests, scheduled test templates, alerts, incidents, WiFi profiles, statistics, path analysis, and running ad-hoc speed/VoIP/Iperf tests (including multiagent run status)
 - **3 contextual resources** providing the LLM with NetBeez data model knowledge, cross-agent correlation methodology, and troubleshooting workflows
 - **4 prompt templates** for common workflows: troubleshoot target, analyze agent health, investigate incident, network overview
 - **Dual transport**: stdio (for Cursor/Claude Desktop) and HTTP (for remote clients)
@@ -21,13 +21,13 @@ The installer will prompt you for:
 1. Your **NetBeez instance URL** (e.g. `https://demo1.netbeezcloud.net`)
 2. Your **API key** (from Dashboard → Settings → API Keys)
 3. **SSL verification** preference (disable for self-signed certs)
-4. Which **MCP clients** to configure (Cursor, Claude Desktop, Windsurf, Codex)
+4. Which **MCP clients** to configure (Cursor, Claude Desktop, Windsurf, Codex, Kiro)
 
 The script is idempotent — re-run it any time to update to the latest version or change your configuration.
 
 ### Development install (no git push required)
 
-From a clone of this repo, run the installer with `--dev` to point Cursor, Claude Desktop, Codex, and Windsurf at your local build:
+From a clone of this repo, run the installer with `--dev` to point Cursor, Claude Desktop, Codex, Windsurf, and Kiro at your local build:
 
 ```bash
 ./install.sh --dev
@@ -47,7 +47,7 @@ This skips cloning; it uses the current directory, runs `npm install` and `npm r
 | Clone | Clones the repo to `~/.netbeez-mcp` (or pulls latest if already installed) |
 | Build | Runs `npm install` and `npm run build` |
 | Configure | Prompts for credentials and writes `~/.netbeez-mcp/.env` |
-| MCP clients | Merges the server entry into Cursor / Claude Desktop / Windsurf / Codex config |
+| MCP clients | Merges the server entry into Cursor / Claude Desktop / Windsurf / Codex / Kiro config |
 
 ## Prerequisites
 
@@ -168,6 +168,27 @@ Add to your Codex config (`~/.codex/config.json`):
 }
 ```
 
+### Kiro
+
+Add to your Kiro user MCP config (`~/.kiro/settings/mcp.json`):
+
+```json
+{
+  "mcpServers": {
+    "netbeez": {
+      "command": "node",
+      "args": ["~/.netbeez-mcp/dist/index.js"],
+      "env": {
+        "NETBEEZ_BASE_URL": "https://your-instance.netbeezcloud.net",
+        "NETBEEZ_API_KEY": "your-api-key-here"
+      }
+    }
+  }
+}
+```
+
+Kiro also supports workspace-level MCP config at `.kiro/settings/mcp.json`.
+
 > **Tip:** The installer (`curl | bash` above) writes these config files automatically.
 
 ## Updating
@@ -200,9 +221,9 @@ Then remove the `"netbeez"` entry from your MCP client config file(s).
 | `MCP_TRANSPORT` | No | `stdio` | Transport mode: `stdio`, `http`, or `both` |
 | `MCP_HTTP_PORT` | No | `3000` | HTTP transport port |
 
-## Tools (18)
+## Tools (32)
 
-### Agent Tools (5)
+### Agent Tools (6)
 | Tool | Description |
 |------|-------------|
 | `list_agents` | List all agents with filtering by name, category, class, active status |
@@ -210,12 +231,25 @@ Then remove the `"netbeez"` entry from your MCP client config file(s).
 | `search_agents` | Search agents by name (exact or regex) |
 | `get_agent_logs` | Get connection/disconnection event logs (including WiFi/DHCP for wireless) |
 | `get_agent_performance_metrics` | Get CPU, memory, disk usage over time |
+| `get_agent_access_point_connections` | Get WiFi access point connection history (SSID/BSSID, signal, DHCP) for wireless troubleshooting |
 
-### Target Tools (2)
+### Agent Group Tools (4)
 | Tool | Description |
 |------|-------------|
-| `list_targets` | List monitoring targets with filters |
+| `list_agent_groups` | List agent groups with filtering and pagination |
+| `get_agent_group` | Get a single agent group with relationships |
+| `create_agent_group` | Create an agent group with member agents and optional target assignment |
+| `update_agent_group` | Update an existing agent group (name, members, targets, auto_assign) |
+
+### Target Tools (6)
+| Tool | Description |
+|------|-------------|
+| `list_targets` | List monitoring targets with filters (agent groups, open incident, WiFi/wired, etc.) |
 | `get_target` | Get target details with test templates |
+| `create_target` | Create a custom monitoring target (raw JSON:API payload) |
+| `create_target_saas` | Create a target from a built-in SaaS application |
+| `create_target_from_template` | Create a target from simplified templates (Website, DNS, VPN, Gateway) |
+| `update_target` | Update an existing target by ID (raw JSON:API payload) |
 
 ### Test & Results Tools (3)
 | Tool | Description |
@@ -223,6 +257,15 @@ Then remove the `"netbeez"` entry from your MCP client config file(s).
 | `list_tests` | List all monitoring tests (ping/dns/http/traceroute/path_analysis) |
 | `get_test_results` | Get test results by type with time range and agent filters |
 | `get_path_analysis_results` | Get hop-by-hop path analysis data |
+
+### Scheduled Test Tools (5)
+| Tool | Description |
+|------|-------------|
+| `list_scheduled_test_templates` | List scheduled Iperf, Network Speed, and VoIP templates with filters |
+| `get_scheduled_test_template` | Get a scheduled test template by ID |
+| `create_scheduled_test_template` | Create a scheduled Iperf/Speed/VoIP template |
+| `update_scheduled_test_template` | Update an existing scheduled test template |
+| `get_scheduled_test_results` | Get results for a scheduled template (bandwidth, VoIP quality, Iperf) by time range and agents |
 
 ### Alert & Incident Tools (2)
 | Tool | Description |
@@ -237,12 +280,12 @@ Then remove the `"netbeez"` entry from your MCP client config file(s).
 | `get_agent_statistics` | Agent uptime/availability statistics |
 | `get_access_point_metrics` | WiFi signal quality metrics (signal, quality, rates) |
 
-### Other Tools (3)
+### Ad-hoc & Other (3)
 | Tool | Description |
 |------|-------------|
+| `run_adhoc_test` | Run an on-demand speed test, VoIP test (agent-to-agent), or Iperf test (agent-to-agent or agent-to-server via IP/FQDN); returns multiagent run ID |
+| `get_multiagent_test_run_status` | Get status and results of a multiagent test run by ID (use after `run_adhoc_test` to poll or retrieve results) |
 | `list_wifi_profiles` | List WiFi profiles and their incident status |
-| `get_scheduled_test_results` | Get results for scheduled tests (Iperf/Speed/VoIP) |
-| `run_adhoc_test` | Run an on-demand speed test, VoIP test (agent-to-agent only), or Iperf test (agent-to-agent or agent-to-server via destination IP or FQDN) |
 
 ## Resources (3)
 
@@ -287,16 +330,18 @@ src/
 │   ├── legacy-client.ts      # Legacy API client (API-VERSION v1)
 │   └── types.ts              # TypeScript types for all entities
 ├── tools/
-│   ├── agents.ts             # Agent tools (5)
-│   ├── targets.ts            # Target tools (2)
+│   ├── agents.ts             # Agent tools (6)
+│   ├── agent-groups.ts       # Agent group tools (4)
+│   ├── targets.ts            # Target tools (6)
 │   ├── tests.ts              # Test tools (2)
 │   ├── incidents.ts          # Incident tools (1)
 │   ├── alerts.ts             # Alert tools (1)
 │   ├── wifi.ts               # WiFi tools (1)
-│   ├── scheduled-tests.ts    # Scheduled test tools (1)
+│   ├── scheduled-tests.ts    # Scheduled test template & results tools (5)
 │   ├── statistics.ts         # Statistics tools (3)
 │   ├── path-analysis.ts      # Path analysis tools (1)
-│   └── actions.ts            # Action tools (1)
+│   ├── actions.ts            # Ad-hoc test tools (2): run_adhoc_test, get_multiagent_test_run_status
+│   └── ad-hoc.ts             # Re-exports actions for ad-hoc tests
 ├── resources/
 │   ├── data-model.ts         # Entity relationships and data shapes
 │   ├── correlation-guide.ts  # Cross-agent correlation patterns

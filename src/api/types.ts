@@ -224,6 +224,39 @@ export interface ScheduledTestResult {
   [key: string]: unknown;
 }
 
+export interface AgentGroupPayload {
+  name: string;
+  agent_ids: number[];
+  nb_target_ids?: number[];
+  auto_assign?: boolean;
+  force?: boolean;
+}
+
+export interface ScheduledNbTestTemplatePayload {
+  test_type_id: 5 | 7 | 8;
+  label: string;
+  cron_schedule: string;
+  agent_ids: number[];
+  target?: string;
+  target_is_agent?: number;
+  destination_agent_id?: number;
+  secure?: boolean;
+  iperf_port?: number;
+  iperf_time?: number;
+  iperf_type?: number;
+  iperf_version?: number;
+  parallel_streams?: number;
+  reverse?: boolean;
+  tcp_window?: number;
+  bandwidth?: number;
+  speedtest_type?: number;
+  codec?: string;
+  voip_port?: number;
+  voip_time?: number;
+  num_of_concurrent_calls?: number;
+  [key: string]: unknown;
+}
+
 // ──────────────────────────────────────────────
 // Ad-hoc Test Runs
 // ──────────────────────────────────────────────

@@ -11,7 +11,12 @@
 
 import { Config } from "../config.js";
 import { BaseClient } from "./base-client.js";
-import type { JsonApiResponse, TimestampFilter, PaginationParams } from "./types.js";
+import type {
+  JsonApiResponse,
+  TimestampFilter,
+  PaginationParams,
+  AgentGroupPayload,
+} from "./types.js";
 
 export interface JsonApiQueryOptions {
   /** filter[key]=value pairs */
@@ -137,6 +142,57 @@ export class JsonApiClient extends BaseClient {
     });
   }
 
+  /**
+   * PUT to a JSON:API endpoint.
+   */
+  async put<T = JsonApiResponse>(
+    path: string,
+    body: unknown,
+    options: JsonApiQueryOptions = {}
+  ): Promise<T> {
+    return this.request<T>(path, {
+      method: "PUT",
+      body,
+      params: this.buildParams(options),
+      headers: {
+        Authorization: `Bearer ${this.config.apiKey}`,
+      },
+    });
+  }
+
+  /**
+   * Request helper for endpoints that are present in the JSON:API collection
+   * but currently require non-JSON:API payload/query format, while still
+   * using Bearer auth.
+   */
+  private async requestNonJsonApi<T = unknown>(
+    path: string,
+    options: {
+      method?: "GET" | "POST" | "PUT" | "DELETE";
+      body?: unknown;
+      params?: Record<string, string | number | boolean | undefined>;
+    } = {}
+  ): Promise<T> {
+    const params: Record<string, string | undefined> = {};
+    if (options.params) {
+      for (const [key, value] of Object.entries(options.params)) {
+        if (value !== undefined && value !== "") {
+          params[key] = String(value);
+        }
+      }
+    }
+
+    return this.request<T>(path, {
+      method: options.method ?? "GET",
+      body: options.body,
+      params,
+      headers: {
+        Authorization: `Bearer ${this.config.apiKey}`,
+        "Content-Type": "application/json",
+      },
+    });
+  }
+
   // ──────────────────────────────────────────────
   // Convenience methods for common entity endpoints
   // ──────────────────────────────────────────────
@@ -169,6 +225,95 @@ export class JsonApiClient extends BaseClient {
   /** List targets */
   async listTargets(options: JsonApiQueryOptions = {}) {
     return this.get<JsonApiResponse>("/targets", { beta: true, ...options });
+  }
+
+  /** Create target (JSON:API) */
+  async createTarget(body: unknown) {
+    return this.post<JsonApiResponse>("/targets", body, { beta: true });
+  }
+
+  /** Create target from built-in SaaS app (JSON:API) */
+  async createTargetSaaS(body: unknown) {
+    return this.post<JsonApiResponse>("/targets/saas", body, { beta: true });
+  }
+
+  /** Create target from template shortcut (JSON:API) */
+  async createTargetFromTemplate(body: unknown) {
+    return this.post<JsonApiResponse>("/targets/target_template", body, { beta: true });
+  }
+
+  /** Update target (JSON:API) */
+  async updateTarget(targetId: string | number, body: unknown) {
+    return this.put<JsonApiResponse>(`/targets/${targetId}`, body, { beta: true });
+  }
+
+  /** List agent groups (JSON:API) */
+  async listAgentGroups(options: JsonApiQueryOptions = {}) {
+    return this.get<JsonApiResponse>("/agent_groups", { beta: true, ...options });
+  }
+
+  /** Get single agent group (JSON:API) */
+  async getAgentGroup(id: string | number, options: JsonApiQueryOptions = {}) {
+    return this.get<JsonApiResponse>(`/agent_groups/${id}`, { beta: true, ...options });
+  }
+
+  /**
+   * Create agent group.
+   * Uses JSON:API payload.
+   */
+  async createAgentGroup(payload: AgentGroupPayload) {
+    const jsonApiBody: Record<string, unknown> = {
+      data: {
+        type: "agent_group",
+        attributes: {
+          name: payload.name,
+          auto_assign: payload.auto_assign,
+          force: payload.force,
+        },
+        relationships: {
+          agents: {
+            data: payload.agent_ids.map((id) => ({ type: "agent", id: String(id) })),
+          },
+          targets: {
+            data: (payload.nb_target_ids ?? []).map((id) => ({ type: "target", id: String(id) })),
+          },
+        },
+      },
+    };
+    return this.post<JsonApiResponse>("/agent_groups", jsonApiBody, { beta: true });
+  }
+
+  /**
+   * Update agent group.
+   * Uses JSON:API payload.
+   */
+  async updateAgentGroup(id: string | number, payload: AgentGroupPayload) {
+    const jsonApiBody: Record<string, unknown> = {
+      data: {
+        id: String(id),
+        type: "agent_group",
+        attributes: {
+          name: payload.name,
+          auto_assign: payload.auto_assign,
+          force: payload.force,
+        },
+        relationships: {
+          agents: {
+            data: payload.agent_ids.map((agentId) => ({
+              type: "agent",
+              id: String(agentId),
+            })),
+          },
+          targets: {
+            data: (payload.nb_target_ids ?? []).map((targetId) => ({
+              type: "target",
+              id: String(targetId),
+            })),
+          },
+        },
+      },
+    };
+    return this.put<JsonApiResponse>(`/agent_groups/${id}`, jsonApiBody, { beta: true });
   }
 
   /** List tests (nb_tests) */
@@ -219,6 +364,51 @@ export class JsonApiClient extends BaseClient {
       `/scheduled_nb_test_templates/${templateId}/results`,
       { beta: true, ...options }
     );
+  }
+
+  /**
+   * Scheduled template list/get/create/update currently use non-JSON:API
+   * payload/query format.
+   */
+  async listScheduledTestTemplates(params: {
+    label?: string;
+    test_type_id?: number;
+    agent_ids?: string;
+    destination_agent_id?: number;
+    by_destination?: string;
+    order_by?: string;
+    order_direction?: "asc" | "desc";
+    page?: number;
+    page_size?: number;
+  } = {}) {
+    return this.requestNonJsonApi<JsonApiResponse>("/scheduled_nb_test_templates.json", {
+      params: {
+        "filter[label]": params.label,
+        "filter[test_types]": params.test_type_id,
+        "filter[agents]": params.agent_ids,
+        "filter[destination_agent]": params.destination_agent_id,
+        "filter[by_destination]": params.by_destination,
+        "order[attributes]": params.order_by,
+        "order[direction]": params.order_direction,
+        "page[offset]": params.page,
+        "page[limit]": params.page_size,
+      },
+    });
+  }
+
+  async getScheduledTestTemplate(id: string | number) {
+    return this.requestNonJsonApi<JsonApiResponse>(`/scheduled_nb_test_templates/${id}`);
+  }
+
+  async createScheduledTestTemplate(body: unknown) {
+    return this.post<JsonApiResponse>("/scheduled_nb_test_templates", body, { beta: true });
+  }
+
+  async updateScheduledTestTemplate(
+    id: string | number,
+    body: unknown
+  ) {
+    return this.put<JsonApiResponse>(`/scheduled_nb_test_templates/${id}`, body, { beta: true });
   }
 
   /** Run ad-hoc test. Uses Content-Type: application/json so the server parses the request body. */

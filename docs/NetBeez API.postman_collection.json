@@ -768,14 +768,13 @@
                 "header": [
                   {
                     "key": "Content-Type",
-                    "name": "Content-Type",
                     "value": "application/json",
                     "type": "text"
                   }
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n\t\"agent_group\": {\n        \"name\": \"agent group name\",\n\t\t\"agent_ids\": [13,9],\n\t\t\"nb_target_ids\": [],\n        \"auto_assign\": false,\n        \"force\": false\n\t}\n}"
+                  "raw": "{\n    \"data\": {\n        \"type\": \"agent_group\",\n        \"attributes\": {\n            \"name\": \"agent group name\",\n            \"auto_assign\": false,\n            \"force\": false\n        },\n        \"relationships\": {\n            \"agents\": {\n                \"data\": [\n                    {\n                        \"type\": \"agent\",\n                        \"id\": \"13\"\n                    },\n                    {\n                        \"type\": \"agent\",\n                        \"id\": \"9\"\n                    }\n                ]\n            },\n            \"targets\": {\n                \"data\": []\n            },\n            \"scheduled_test_templates\": {\n                \"data\": []\n            }\n        }\n    }\n}"
                 },
                 "url": {
                   "raw": "https://{{HOSTNAME}}/agent_groups",
@@ -802,7 +801,7 @@
                     ],
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n\t\"agent_group\": {\n        \"name\": \"agent group name\",\n\t\t\"agent_ids\": [13,9],\n\t\t\"nb_target_ids\": [],\n        \"auto_assign\": false,\n        \"force\": false\n\t}\n}",
+                      "raw": "{\n    \"data\": {\n        \"type\": \"agent_group\",\n        \"attributes\": {\n            \"name\": \"agent group name\",\n            \"auto_assign\": false,\n            \"force\": false\n        },\n        \"relationships\": {\n            \"agents\": {\n                \"data\": [\n                    {\n                        \"type\": \"agent\",\n                        \"id\": \"13\"\n                    },\n                    {\n                        \"type\": \"agent\",\n                        \"id\": \"9\"\n                    }\n                ]\n            },\n            \"targets\": {\n                \"data\": []\n            },\n            \"scheduled_test_templates\": {\n                \"data\": []\n            }\n        }\n    }\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -842,14 +841,13 @@
                 "header": [
                   {
                     "key": "Content-Type",
-                    "name": "Content-Type",
-                    "type": "text",
-                    "value": "application/json"
+                    "value": "application/json",
+                    "type": "text"
                   }
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n\t\"agent_group\": {\n        \"name\": \"agent group name\",\n\t\t\"agent_ids\": [13,9],\n\t\t\"nb_target_ids\": [],\n        \"auto_assign\": false,\n        \"force\": false\n\t}\n}"
+                  "raw": "{\n    \"data\": {\n        \"type\": \"agent_group\",\n        \"attributes\": {\n            \"name\": \"[Office] Pittsburgh\"\n        }\n    }\n}"
                 },
                 "url": {
                   "raw": "https://{{HOSTNAME}}/agent_groups/:id",
@@ -884,7 +882,7 @@
                     ],
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n\t\"agent_group\": {\n        \"name\": \"[Office] Pittsburgh\"\n\t}\n}",
+                      "raw": "{\n    \"data\": {\n        \"type\": \"agent_group\",\n        \"attributes\": {\n            \"name\": \"[Office] Pittsburgh\"\n        }\n    }\n}",
                       "options": {
                         "raw": {
                           "language": "json"
@@ -3982,7 +3980,51 @@
                 },
                 "description": "This endpoint gives the ability to update a specified `target`.\n\nSee the [Target](#folder-d027bace-4f9d-43a7-851b-08ea18313f25) data structure reference for additional information. See [POST/PUT using JSONAPI](#670b7e0c-98e4-44b6-9875-96233d01330b) reference topic for information on sending JSONAPI payloads."
               },
-              "response": []
+              "response": [
+                {
+                  "name": "Update a target",
+                  "originalRequest": {
+                    "method": "PUT",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n    \"data\": {\n        \"id\": 144,\n        \"type\": \"target\",\n        \"attributes\": {\n            \"name\": \"API Target\",\n            \"description\": \"\",\n            \"wired_test\": false,\n            \"wifi_test\": true,\n            \"smtp_notify\": true\n        },\n        \"relationships\": {\n            \"agents\": {\n                \"data\": [\n                    {\n                        \"id\": 122,\n                        \"type\": \"agent\"\n                    }\n                ]\n            },\n            \"agent_groups\": {\n                \"data\": [\n                    {\n                        \"id\": 1,\n                        \"type\": \"agent_group\"\n                    }\n                ]\n            },\n            \"contacts\": {\n                \"data\": [\n                    {\n                        \"attributes\": {\n                            \"email\": \"contact@company.com\"\n                        },\n                        \"type\": \"contact\"\n                    }\n                ]\n            },\n            \"test_templates\": {\n                \"data\": [\n                    {\n                        \"id\": 20,\n                        \"type\": \"test_template\",\n                        \"attributes\": {\n                            \"count\": 0,\n                            \"interval\": 5,\n                            \"timeout\": 5,\n                            \"target\": \"api.netbeez.net\",\n                            \"data_size\": 56,\n                            \"dont_fragment\": false,\n                            \"ping_type\": 2,\n                            \"port\": null,\n                            \"jitter_mos\": false,\n                            \"force_ipv6\": false\n                        },\n                        \"relationships\": {\n                            \"test_type\": {\n                                \"data\": {\n                                    \"id\": 1,\n                                    \"type\": \"test_type\"\n                                }\n                            },\n                            \"alert_detectors\": {\n                                \"data\": [\n                                    {\n                                        \"id\": 1,\n                                        \"type\": \"alert_detector\"\n                                    },\n                                    {\n                                        \"id\": 5,\n                                        \"type\": \"alert_detector\"\n                                    }\n                                ]\n                            }\n                        }\n                    },\n                    {\n                        \"id\": 15,\n                        \"type\": \"test_template\",\n                        \"method\": \"remove\"\n                        \n                    },\n                    {\n                        \"type\": \"test_template\",\n                        \"attributes\": {\n                            \"count\": 0,\n                            \"interval\": 60,\n                            \"timeout\": 5,\n                            \"target\": \"https://api.netbeez.net\",\n                            \"http_method\": \"GET\"\n                        },\n                        \"relationships\": {\n                            \"test_type\": {\n                                \"data\": {\n                                    \"id\": 3,\n                                    \"type\": \"test_type\"\n                                }\n                            },\n                            \"alert_detectors\": {\n                                \"data\": [\n                                    {\n                                        \"id\": 3,\n                                        \"type\": \"alert_detector\"\n                                    },\n                                    {\n                                        \"id\": 7,\n                                        \"type\": \"alert_detector\"\n                                    }\n                                ]\n                            }\n                        }\n                    }\n                ]\n            },\n            \"monitoring_condition\": {\n                \"data\": {\n                    \"id\": 2,\n                    \"type\": \"monitoring_condition\"\n                }\n            }\n        }\n    }\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "https://{{HOSTNAME}}/targets/:id",
+                      "protocol": "https",
+                      "host": [
+                        "{{HOSTNAME}}"
+                      ],
+                      "path": [
+                        "targets",
+                        ":id"
+                      ],
+                      "variable": [
+                        {
+                          "key": "id",
+                          "value": "26"
+                        }
+                      ]
+                    }
+                  },
+                  "_postman_previewlanguage": "",
+                  "header": [],
+                  "cookie": [
+                    {
+                      "expires": "Invalid Date",
+                      "domain": "",
+                      "path": ""
+                    }
+                  ],
+                  "body": ""
+                }
+              ]
             }
           ]
         }
