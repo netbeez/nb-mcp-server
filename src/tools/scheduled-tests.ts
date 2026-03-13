@@ -254,11 +254,11 @@ Use this for bandwidth testing results, VoIP quality metrics, or Iperf throughpu
       filter_ts_value1: z
         .string()
         .optional()
-        .describe("Timestamp filter value"),
+        .describe("Timestamp value (Unix epoch ms, seconds, or ISO 8601; converted to ms)"),
       filter_ts_value2: z
         .string()
         .optional()
-        .describe("Second timestamp value (for between operator)"),
+        .describe("Second timestamp value for between operator (converted to ms)"),
       order_by: z
         .string()
         .optional()

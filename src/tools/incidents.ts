@@ -42,20 +42,38 @@ Incident severity is inherited from the highest-severity alert within it. An ope
         .string()
         .optional()
         .describe("Acknowledgement time filter operator"),
-      filter_ack_ts_value1: z.string().optional(),
-      filter_ack_ts_value2: z.string().optional(),
+      filter_ack_ts_value1: z
+        .string()
+        .optional()
+        .describe("Ack time value (Unix epoch ms, seconds, or ISO 8601; converted to ms)"),
+      filter_ack_ts_value2: z
+        .string()
+        .optional()
+        .describe("Second ack time value (converted to ms)"),
       filter_end_ts_operator: z
         .string()
         .optional()
         .describe("End time filter operator (use to find open vs closed incidents)"),
-      filter_end_ts_value1: z.string().optional(),
-      filter_end_ts_value2: z.string().optional(),
+      filter_end_ts_value1: z
+        .string()
+        .optional()
+        .describe("End time value (Unix epoch ms, seconds, or ISO 8601; converted to ms)"),
+      filter_end_ts_value2: z
+        .string()
+        .optional()
+        .describe("Second end time value (converted to ms)"),
       filter_start_ts_operator: z
         .string()
         .optional()
         .describe("Start time filter operator"),
-      filter_start_ts_value1: z.string().optional(),
-      filter_start_ts_value2: z.string().optional(),
+      filter_start_ts_value1: z
+        .string()
+        .optional()
+        .describe("Start time value (Unix epoch ms, seconds, or ISO 8601; converted to ms)"),
+      filter_start_ts_value2: z
+        .string()
+        .optional()
+        .describe("Second start time value (converted to ms)"),
       include: z
         .string()
         .optional()

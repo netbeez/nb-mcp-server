@@ -58,14 +58,26 @@ Use this to find active alerts, investigate alert patterns across agents/targets
         .string()
         .optional()
         .describe("Alert time filter operator"),
-      filter_ts_value1: z.string().optional(),
-      filter_ts_value2: z.string().optional(),
+      filter_ts_value1: z
+        .string()
+        .optional()
+        .describe("Alert time value (Unix epoch ms, seconds, or ISO 8601; converted to ms)"),
+      filter_ts_value2: z
+        .string()
+        .optional()
+        .describe("Second time value for between operator (converted to ms)"),
       filter_closed_ts_operator: z
         .string()
         .optional()
         .describe("Closed time filter operator"),
-      filter_closed_ts_value1: z.string().optional(),
-      filter_closed_ts_value2: z.string().optional(),
+      filter_closed_ts_value1: z
+        .string()
+        .optional()
+        .describe("Closed time value (Unix epoch ms, seconds, or ISO 8601; converted to ms)"),
+      filter_closed_ts_value2: z
+        .string()
+        .optional()
+        .describe("Second closed time value (converted to ms)"),
       filter_message: z
         .string()
         .optional()

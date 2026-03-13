@@ -11,6 +11,7 @@
 
 import { Config } from "../config.js";
 import { BaseClient } from "./base-client.js";
+import { toEpochMs } from "../utils/timestamp.js";
 import type {
   JsonApiResponse,
   TimestampFilter,
@@ -55,14 +56,14 @@ export class JsonApiClient extends BaseClient {
       }
     }
 
-    // Timestamp/operator filters
+    // Timestamp/operator filters — normalize ts values to Unix epoch milliseconds
     if (options.timestampFilters) {
       for (const [key, filter] of Object.entries(options.timestampFilters)) {
         if (filter) {
           params[`filter[${key}][operator]`] = filter.operator;
-          params[`filter[${key}][value1]`] = filter.value1;
+          params[`filter[${key}][value1]`] = toEpochMs(filter.value1);
           if (filter.value2) {
-            params[`filter[${key}][value2]`] = filter.value2;
+            params[`filter[${key}][value2]`] = toEpochMs(filter.value2);
           }
         }
       }
@@ -338,9 +339,9 @@ export class JsonApiClient extends BaseClient {
     return this.get<JsonApiResponse>("/nb_tests/path_analysis/results", { beta: true, ...options });
   }
 
-  /** Get a single path analysis result by timestamp */
+  /** Get a single path analysis result by timestamp (accepts epoch ms, seconds, or ISO 8601; sent as epoch ms) */
   async getPathAnalysisResultByTimestamp(timestamp: string, options: JsonApiQueryOptions = {}) {
-    return this.get<JsonApiResponse>(`/nb_tests/path_analysis/results/${timestamp}`, { beta: true, ...options });
+    return this.get<JsonApiResponse>(`/nb_tests/path_analysis/results/${toEpochMs(timestamp)}`, { beta: true, ...options });
   }
 
   /** List alerts */

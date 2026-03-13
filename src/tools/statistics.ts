@@ -31,11 +31,11 @@ Response: { nb_test_statistics: [{ id, nb_test_id, timestamp, value, metric_type
       from: z
         .string()
         .optional()
-        .describe("Start time (Unix timestamp or ISO 8601)"),
+        .describe("Start time (Unix epoch ms, seconds, or ISO 8601; converted to ms)"),
       to: z
         .string()
         .optional()
-        .describe("End time (Unix timestamp or ISO 8601)"),
+        .describe("End time (Unix epoch ms, seconds, or ISO 8601; converted to ms)"),
       last: z
         .number()
         .optional()
@@ -99,11 +99,11 @@ Response: { agent_stats: [{ agent_id, id, interval, timestamp, uptime, window_si
       from: z
         .string()
         .optional()
-        .describe("Start time (Unix timestamp or ISO 8601)"),
+        .describe("Start time (Unix epoch ms, seconds, or ISO 8601; converted to ms)"),
       to: z
         .string()
         .optional()
-        .describe("End time (Unix timestamp or ISO 8601)"),
+        .describe("End time (Unix epoch ms, seconds, or ISO 8601; converted to ms)"),
       window_size: z
         .number()
         .optional()
@@ -147,11 +147,11 @@ Response: { metrics: [{ access_point_id, bit_rate, channel, id, link_quality, ne
       from: z
         .string()
         .optional()
-        .describe("Start time (Unix timestamp or ISO 8601)"),
+        .describe("Start time (Unix epoch ms, seconds, or ISO 8601; converted to ms)"),
       to: z
         .string()
         .optional()
-        .describe("End time (Unix timestamp or ISO 8601)"),
+        .describe("End time (Unix epoch ms, seconds, or ISO 8601; converted to ms)"),
       cardinality: z
         .number()
         .optional()

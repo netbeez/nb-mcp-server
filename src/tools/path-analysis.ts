@@ -39,15 +39,15 @@ Relationships include the agent and test template for each result. Use the inclu
       filter_ts_value1: z
         .string()
         .optional()
-        .describe("Timestamp filter value"),
+        .describe("Timestamp value (Unix epoch ms, seconds, or ISO 8601; converted to ms)"),
       filter_ts_value2: z
         .string()
         .optional()
-        .describe("Second timestamp value (for between operator)"),
+        .describe("Second timestamp value for between operator (converted to ms)"),
       timestamp: z
         .string()
         .optional()
-        .describe("Get a single path analysis result at this exact timestamp"),
+        .describe("Get a single result at this timestamp (Unix epoch ms, seconds, or ISO 8601; converted to ms)"),
       include: z
         .string()
         .optional()

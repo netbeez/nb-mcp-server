@@ -3,10 +3,12 @@
  *
  * Auth: Authorization: <API_KEY> (no "Bearer" prefix) + API-VERSION: v1
  * Endpoints: /apis/*.json
+ * Timestamps (from, to) are normalized to Unix epoch milliseconds before sending.
  */
 
 import { Config } from "../config.js";
 import { BaseClient } from "./base-client.js";
+import { toEpochMs } from "../utils/timestamp.js";
 import type { TestStatistic, AgentStatistic, AccessPointMetric } from "./types.js";
 
 export interface LegacyQueryParams {
@@ -21,15 +23,19 @@ export class LegacyClient extends BaseClient {
   /**
    * GET a legacy API endpoint.
    */
+  private static readonly TIMESTAMP_PARAMS = new Set(["from", "to"]);
+
   private async legacyGet<T = unknown>(
     path: string,
     params: LegacyQueryParams = {}
   ): Promise<T> {
-    // Convert all params to strings
+    // Convert all params to strings; normalize timestamp params to Unix epoch ms
     const stringParams: Record<string, string | undefined> = {};
     for (const [key, value] of Object.entries(params)) {
       if (value !== undefined && value !== "") {
-        stringParams[key] = String(value);
+        stringParams[key] = LegacyClient.TIMESTAMP_PARAMS.has(key)
+          ? toEpochMs(value as string | number)
+          : String(value);
       }
     }
 
