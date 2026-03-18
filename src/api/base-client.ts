@@ -4,6 +4,16 @@
 
 import { Config } from "../config.js";
 
+/**
+ * Encode a query-parameter value, preserving characters that are safe in
+ * query values but would be percent-encoded by URLSearchParams (brackets,
+ * angle brackets, equals, etc.).  Only encode the characters that MUST be
+ * escaped: &, #, %, +, and space.
+ */
+function encodeQueryValue(value: string): string {
+  return value.replace(/[&#%+ ]/g, (ch) => `%${ch.charCodeAt(0).toString(16).toUpperCase().padStart(2, "0")}`);
+}
+
 export class ApiError extends Error {
   constructor(
     public readonly statusCode: number,
@@ -40,13 +50,21 @@ export class BaseClient {
   ): Promise<T> {
     const { method = "GET", headers = {}, body, params, retries = 2 } = options;
 
-    // Build URL with query parameters
+    // Build URL with query parameters.
+    // Construct the query string manually so that bracket-style keys
+    // (filter[ts][operator]) and operator values (<=>)  are NOT
+    // aggressively percent-encoded. URLSearchParams encodes brackets and
+    // angle-brackets, which some servers fail to decode before validation.
     const url = new URL(path, this.baseUrl);
     if (params) {
+      const parts: string[] = [];
       for (const [key, value] of Object.entries(params)) {
         if (value !== undefined && value !== "") {
-          url.searchParams.append(key, value);
+          parts.push(`${key}=${encodeQueryValue(value)}`);
         }
+      }
+      if (parts.length > 0) {
+        url.search = `?${parts.join("&")}`;
       }
     }
 

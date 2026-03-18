@@ -57,13 +57,19 @@ export class JsonApiClient extends BaseClient {
     }
 
     // Timestamp/operator filters — normalize ts values to Unix epoch milliseconds
+    // For <=> (between): use value1 + value2
+    // For all other operators: use value (not value1)
     if (options.timestampFilters) {
       for (const [key, filter] of Object.entries(options.timestampFilters)) {
         if (filter) {
           params[`filter[${key}][operator]`] = filter.operator;
-          params[`filter[${key}][value1]`] = toEpochMs(filter.value1);
-          if (filter.value2) {
-            params[`filter[${key}][value2]`] = toEpochMs(filter.value2);
+          if (filter.operator === "<=>") {
+            params[`filter[${key}][value1]`] = toEpochMs(filter.value1);
+            if (filter.value2) {
+              params[`filter[${key}][value2]`] = toEpochMs(filter.value2);
+            }
+          } else {
+            params[`filter[${key}][value]`] = toEpochMs(filter.value1);
           }
         }
       }

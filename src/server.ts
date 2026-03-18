@@ -58,10 +58,28 @@ import { INVESTIGATE_INCIDENT_PROMPT } from "./prompts/investigate-incident.js";
 import { NETWORK_OVERVIEW_PROMPT } from "./prompts/network-overview.js";
 
 export function createServer(config: Config): McpServer {
-  const server = new McpServer({
-    name: "netbeez-mcp-server",
-    version: "1.0.0",
-  });
+  const server = new McpServer(
+    {
+      name: "netbeez-mcp-server",
+      version: "1.0.0",
+    },
+    {
+      instructions: [
+        "You are connected to the NetBeez MCP server, which provides tools for querying and managing a NetBeez network monitoring platform.",
+        "",
+        "## Updating the NetBeez MCP Server",
+        "",
+        "When the user asks to update this MCP server to the latest version, give them the following instructions:",
+        "",
+        "**Standard install** (installed via the one-line installer to ~/.netbeez-mcp):",
+        "Re-run the installer — it pulls the latest source, rebuilds, and preserves existing credentials:",
+        "```",
+        "curl -fsSL https://raw.githubusercontent.com/netbeez/nb-mcp-server/main/install.sh | bash",
+        "```",
+        "Existing credentials are shown as defaults; press Enter to keep them. After updating, restart the MCP client (Cursor, Claude Desktop, etc.) to pick up the new version.",
+      ].join("\n"),
+    },
+  );
 
   // Initialize API clients
   const jsonApiClient = new JsonApiClient(config);

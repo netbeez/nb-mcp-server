@@ -25,10 +25,6 @@ export function registerTargetTools(server: McpServer, client: JsonApiClient) {
     "list_targets",
     `List all monitoring targets (hosts, URLs, IPs being monitored). Returns targets with their associated test templates and alert counts. Use this to see what is being monitored, find targets with open incidents, or filter by agent/category/connectivity type.`,
     {
-      filter_name_regex: z
-        .string()
-        .optional()
-        .describe("Filter targets by name using regex pattern"),
       filter_agents: z
         .string()
         .optional()
@@ -67,7 +63,6 @@ export function registerTargetTools(server: McpServer, client: JsonApiClient) {
     async (params) => {
       const response = await client.listTargets({
         filters: {
-          "name[regex]": params.filter_name_regex,
           agents: params.filter_agents,
           categories: params.filter_categories,
           agent_classes: params.filter_agent_classes,
