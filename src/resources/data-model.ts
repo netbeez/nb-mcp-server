@@ -66,13 +66,13 @@ All available time-indexed data and how to query it:
 
 | Endpoint | Key Metrics | Filters |
 |----------|-------------|---------|
-| \`/apis/nb_test_statistics.json\` | timestamp, value (avg/min/max), window_size, datapoint_count, error_count | nb_test_id, agent_id, nb_test_template_id, nb_target_id, granularity, grouping, watermark |
+| \`/nb_test_statistics.json\` | timestamp, value (avg/min/max), window_size, datapoint_count, error_count | nb_test_id, agent_id, nb_test_template_id, nb_target_id, granularity, grouping, watermark |
 
 ### Agent Health Data
 
 | Type | Endpoint | Key Metrics | Filters |
 |------|----------|-------------|---------|
-| **Agent Statistics** | \`/apis/nb_agent_statistics.json\` | timestamp, uptime, interval, window_size | agent_id (required), time range, window_size, last N |
+| **Agent Statistics** | \`/nb_agent_statistics.json\` | timestamp, uptime, interval, window_size | agent_id (required), time range, window_size, last N |
 | **Performance Metrics** | \`/agents/{id}/performance_metrics\` | CPU usage, memory usage, disk usage | time range |
 | **Agent Logs** | \`/agents/{id}/logs\` | CONNECT/DISCONNECT events; wireless: wpa_supplicant, DHCP events | log type, time range |
 
@@ -80,8 +80,8 @@ All available time-indexed data and how to query it:
 
 | Type | Endpoint | Key Metrics | Filters |
 |------|----------|-------------|---------|
-| **AP Metrics** | \`/apis/access_point_metrics.json\` | bit_rate, channel, link_quality (0-1), signal_level (dBm), rx_rate, tx_rate | agent_id, access_point_id, time range |
-| **AP Metrics (sampled)** | \`/apis/access_point_metrics/sample.json\` | Same as above, downsampled | agent_id, access_point_id, time range, cardinality |
+| **AP Metrics** | \`/access_point_metrics.json\` | bit_rate, channel, link_quality (0-1), signal_level (dBm), rx_rate, tx_rate | agent_id, access_point_id, time range |
+| **AP Metrics (sampled)** | \`/access_point_metrics/sample.json\` | Same as above, downsampled | agent_id, access_point_id, time range, cardinality |
 | **AP Connections** | \`/agents/{id}/access_point_connections\` | BSSID, SSID, signal strength, DHCP status | agent_id |
 
 ### Scheduled Test Results

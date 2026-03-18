@@ -42,6 +42,13 @@ import {
   TROUBLESHOOTING_GUIDE_MIME,
   TROUBLESHOOTING_GUIDE_CONTENT,
 } from "./resources/troubleshooting-guide.js";
+import {
+  API_REFERENCE_URI,
+  API_REFERENCE_NAME,
+  API_REFERENCE_DESCRIPTION,
+  API_REFERENCE_MIME,
+  API_REFERENCE_CONTENT,
+} from "./resources/api-reference.js";
 
 // Prompts
 import { z } from "zod";
@@ -98,7 +105,7 @@ export function createServer(config: Config): McpServer {
   registerAdHocTools(server, jsonApiClient);
 
   // ──────────────────────────────────────────────
-  // Register Resources (3 contextual documents)
+  // Register Resources (4 contextual documents)
   // ──────────────────────────────────────────────
 
   server.resource(DATA_MODEL_NAME, DATA_MODEL_URI, { description: DATA_MODEL_DESCRIPTION, mimeType: DATA_MODEL_MIME }, async () => ({
@@ -127,6 +134,16 @@ export function createServer(config: Config): McpServer {
         uri: TROUBLESHOOTING_GUIDE_URI,
         mimeType: TROUBLESHOOTING_GUIDE_MIME,
         text: TROUBLESHOOTING_GUIDE_CONTENT,
+      },
+    ],
+  }));
+
+  server.resource(API_REFERENCE_NAME, API_REFERENCE_URI, { description: API_REFERENCE_DESCRIPTION, mimeType: API_REFERENCE_MIME }, async () => ({
+    contents: [
+      {
+        uri: API_REFERENCE_URI,
+        mimeType: API_REFERENCE_MIME,
+        text: API_REFERENCE_CONTENT,
       },
     ],
   }));

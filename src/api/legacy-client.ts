@@ -2,7 +2,7 @@
  * Legacy API client — for the 3 statistics endpoints only.
  *
  * Auth: Authorization: <API_KEY> (no "Bearer" prefix) + API-VERSION: v1
- * Endpoints: /apis/*.json
+ * Endpoints: /nb_test_statistics.json, /nb_agent_statistics.json, /access_point_metrics.json
  * Timestamps (from, to) are normalized to Unix epoch milliseconds before sending.
  */
 
@@ -71,7 +71,7 @@ export class LegacyClient extends BaseClient {
     value_operator?: string;
     value_watermark?: number;
   } = {}): Promise<{ nb_test_statistics: TestStatistic[] }> {
-    return this.legacyGet("/apis/nb_test_statistics.json", params);
+    return this.legacyGet("/nb_test_statistics.json", params);
   }
 
   // ──────────────────────────────────────────────
@@ -85,7 +85,7 @@ export class LegacyClient extends BaseClient {
     window_size?: number;
     last?: number;
   }): Promise<{ agent_stats: AgentStatistic[] }> {
-    return this.legacyGet("/apis/nb_agent_statistics.json", params);
+    return this.legacyGet("/nb_agent_statistics.json", params);
   }
 
   // ──────────────────────────────────────────────
@@ -98,7 +98,7 @@ export class LegacyClient extends BaseClient {
     from?: string;
     to?: string;
   } = {}): Promise<{ metrics: AccessPointMetric[] }> {
-    return this.legacyGet("/apis/access_point_metrics.json", params);
+    return this.legacyGet("/access_point_metrics.json", params);
   }
 
   async getAccessPointMetricsSample(params: {
@@ -108,6 +108,6 @@ export class LegacyClient extends BaseClient {
     to?: string;
     cardinality?: number;
   } = {}): Promise<{ metrics: AccessPointMetric[] }> {
-    return this.legacyGet("/apis/access_point_metrics/sample.json", params);
+    return this.legacyGet("/access_point_metrics/sample.json", params);
   }
 }
