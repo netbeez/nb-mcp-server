@@ -181,6 +181,8 @@ For single-resource responses, \`data\` is an object instead of an array.
 
 **Includes:** \`network_interfaces\`, \`agent_groups\`
 
+**Agent attributes (details):** Each agent resource includes connectivity metadata: **\`isp_name\`** (name of the Internet Service Provider for the agent’s connection) and **\`isp_asn\`** (Autonomous System Number of the ISP). These are derived from the agent’s external/public IP. The response may also include \`logged_in_user\` (user associated with the agent, when applicable).
+
 **Stubbed mode:** Pass \`stubbed=true\` query param for a lighter response.
 
 #### Agent Sub-resources

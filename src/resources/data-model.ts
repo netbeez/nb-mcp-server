@@ -17,7 +17,8 @@ export const DATA_MODEL_CONTENT = `# NetBeez Data Model
 ### Agent
 - **Has many**: Tests (nb_tests), Network Interfaces, Tags, Agent Groups
 - **Has**: Performance Metrics (CPU, memory, disk), Logs (connect/disconnect events), Access Point Connections (WiFi agents)
-- **Key fields**: id, name, active (boolean), agent_class (container|faste|wireless|gige|virtual|external|software|mac|windows), category (network_agent|remote_worker_agent), software_version, ip_address, mac_address, location, latitude, longitude
+- **Key fields**: id, name, active (boolean), agent_class (container|faste|wireless|gige|virtual|external|software|mac|windows), category (network_agent|remote_worker_agent), software_version, ip_address, mac_address, location, latitude, longitude, **isp_name**, **isp_asn**, logged_in_user, in_incident (boolean)
+- **ISP fields**: \`isp_name\` — name of the Internet Service Provider for the agent’s connection; \`isp_asn\` — Autonomous System Number (ASN) of the ISP. Both are derived from the agent’s external/public IP and are included in agent details.
 - **Wireless agents** additionally produce: wpa_supplicant logs (WiFi association/auth), DHCP logs, access point metrics
 
 ### Target
