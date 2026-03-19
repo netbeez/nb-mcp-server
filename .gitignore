@@ -3,3 +3,5 @@ dist/
 .env
 .cursor/
 *.log
+docs/swagger/
+docs/NetBeez API.postman_collection.json

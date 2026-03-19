@@ -24,7 +24,7 @@ Both APIs are served from the same base URL (e.g. \`https://your-instance.netbee
 
 ## Authentication
 
-### JSON:API Endpoints
+### JSON:API Endpoints (full documentation at https://api.netbeez.net)
 
 \`\`\`
 Authorization: Bearer <API_KEY>
@@ -329,11 +329,56 @@ For single-resource responses, \`data\` is an object instead of an array.
 |--------|------|-------------|
 | GET | \`/alerts\` | List alerts |
 | GET | \`/alerts/ai_summary\` | AI-generated alert summary |
-| GET | \`/alert_detectors\` | List alert detectors |
 
-**Alert filters:** \`targets\`, \`agents\`, and more.
+**Alert filters:** \`targets\`, \`agents\`, \`tests\`, \`test_templates\`, \`alert_detectors\`, \`categories\`, \`agent_classes\`, \`agent_groups\`, \`severity\` (operator filter), \`ts\` (timestamp operator filter), \`closed_ts\` (timestamp operator filter), \`message\`, \`status\` (open|closed)
 
 **Alert severity values:** 1 = failure/critical, 4 = warning, 6 = cleared/recovered
+
+---
+
+### Alert Detectors
+
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | \`/alert_detectors\` | List alert detector definitions |
+
+Alert detectors are rules that evaluate test results or agent heartbeats and trigger alerts when conditions are met.
+
+**Filters:**
+
+| Parameter | Description |
+|-----------|-------------|
+| \`filter[default]\` | Filter by whether the detector attaches to new targets by default (\`true\` or \`false\`) |
+| \`filter[alert_detector_types]\` | Filter by type (comma-separated): \`AgentUpDown\`, \`Baseline\`, \`BaselineWatermark\`, \`UpDown\`, \`Watermark\` |
+| \`filter[alerting_entity_types]\` | Filter by alerting entity (comma-separated): \`Agent\`, \`NbTest\` |
+| \`filter[test_types]\` | Filter by test type (comma-separated): \`Ping\`, \`HTTP\`, \`DNS\`, \`Traceroute\` |
+| \`filter[tests]\` | Filter by test IDs (comma-separated) |
+| \`filter[agents]\` | Filter by agent IDs (comma-separated) |
+
+**Ordering:** \`id\`, \`name\`
+
+**Alert detector attributes:**
+
+| Field | Type | Description |
+|-------|------|-------------|
+| \`name\` | string | Human-readable name (e.g. "PING Up Down", "HTTP Loading > 1 sec") |
+| \`alert_detector_type\` | string | Type: AgentUpDown, UpDown, Watermark, Baseline, BaselineWatermark |
+| \`type_of_alerting_entity\` | string | What this detector monitors: Agent or NbTest |
+| \`alerts_severity\` | integer | Severity of alerts produced: 1 (critical) or 4 (warning) |
+| \`attach_by_default\` | boolean | Whether this detector is auto-assigned to new targets |
+| \`alert_condition\` | string | JS expression evaluated to trigger an alert |
+| \`reverse_alert_condition\` | string | JS expression evaluated to clear an alert |
+| \`message\` | string | Alert message template |
+| \`reverse_message\` | string | Alert-cleared message template |
+| \`stats_function\` | string | Statistical function applied to the data stream |
+| \`stream_source\` | string | Data source: results, statistics, heartbeats, network_updates |
+| \`window_type\` | string | Evaluation window type: sliding or monotonic |
+| \`window_size\` | integer | Evaluation window size (minutes for sliding, milliseconds for monotonic) |
+| \`function_arguments\` | string/null | JSON string with extra parameters (alert_metric, baseline_window_size) |
+| \`created_at\` | string | ISO 8601 creation timestamp |
+| \`updated_at\` | string | ISO 8601 last-update timestamp |
+
+**Relationships:** \`nb_test_type\` (the test type this detector applies to, null for Agent-level detectors)
 
 ---
 

@@ -355,6 +355,11 @@ export class JsonApiClient extends BaseClient {
     return this.get<JsonApiResponse>("/alerts", { beta: true, ...options });
   }
 
+  /** List alert detectors */
+  async listAlertDetectors(options: JsonApiQueryOptions = {}) {
+    return this.get<JsonApiResponse>("/alert_detectors", { beta: true, ...options });
+  }
+
   /** List incidents */
   async listIncidents(options: JsonApiQueryOptions = {}) {
     return this.get<JsonApiResponse>("/incidents", { beta: true, ...options });

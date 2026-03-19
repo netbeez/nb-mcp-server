@@ -32,6 +32,12 @@ export const DATA_MODEL_CONTENT = `# NetBeez Data Model
 - **Key fields**: id, test_type, schedule_type, current_state, alert_mode
 - **Test types**: ping, dns, http, traceroute, path_analysis
 
+### Alert Detector
+- **Defines**: A rule that evaluates test results or agent heartbeats and triggers alerts when conditions are met
+- **Types**: AgentUpDown (agent reachability), UpDown (test pass/fail), Watermark (fixed threshold), Baseline (dynamic threshold vs historical), BaselineWatermark (combined)
+- **Key fields**: id, name, alert_detector_type, type_of_alerting_entity (Agent|NbTest), alerts_severity, attach_by_default, alert_condition, reverse_alert_condition, message, reverse_message, stats_function, stream_source, window_type, window_size, function_arguments
+- **Relates to**: Test Type (nb_test_type), Tests (via test templates), Alerts (triggers them)
+
 ### Alert
 - **Triggered by**: Alert Detector (up-down, baseline, watermark) on a test
 - **Key fields**: id, severity (1=failure/critical, 4=warning, 6=cleared/recovered), message, ts (timestamp), closed_ts, status (open|closed)

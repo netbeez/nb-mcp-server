@@ -13,6 +13,7 @@ import { registerTargetTools } from "./tools/targets.js";
 import { registerTestTools } from "./tools/tests.js";
 import { registerIncidentTools } from "./tools/incidents.js";
 import { registerAlertTools } from "./tools/alerts.js";
+import { registerAlertDetectorTools } from "./tools/alert-detectors.js";
 import { registerWifiTools } from "./tools/wifi.js";
 import { registerScheduledTestTools } from "./tools/scheduled-tests.js";
 import { registerAgentGroupTools } from "./tools/agent-groups.js";
@@ -103,6 +104,9 @@ export function createServer(config: Config): McpServer {
 
   // Alert tools (1): list_alerts
   registerAlertTools(server, jsonApiClient);
+
+  // Alert detector tools (1): list_alert_detectors
+  registerAlertDetectorTools(server, jsonApiClient);
 
   // WiFi tools (1): list_wifi_profiles
   registerWifiTools(server, jsonApiClient);
